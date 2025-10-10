@@ -8,6 +8,7 @@ const User = require("../models/user.model");
 
 const { Op } = require("sequelize");
 const { USER_ROLE } = require("./privilliges.controller");
+const { getIO } = require("../socket");
 
 exports.createReservation = async (req, res) => {
   try {
@@ -67,6 +68,9 @@ exports.createReservation = async (req, res) => {
       notes,
       timezone
     });
+
+
+    getIO().emit("scheduleUpdated");
 
    return res
       .status(201)
@@ -173,6 +177,8 @@ exports.updateReservation = async (req, res) => {
       return res.status(404).json({ message: "Reservation not found" });
     }
 
+    getIO().emit("scheduleUpdated");
+    getIO().emit("scheduleDetailUpdated");
     const updatedReservation = await Reservation.findByPk(id);
     return res.status(200).json({
       message: "Reservation updated",
@@ -224,7 +230,8 @@ exports.confirmReservation = async (req, res) => {
     if (updated[0] === 0) {
       return res.status(404).json({ message: "Reservation not found" });
     }
-
+   getIO().emit("scheduleUpdated");
+    getIO().emit("scheduleDetailUpdated");
     const updatedReservation = await Reservation.findByPk(id);
     return res.status(200).json({
       message: "Reservation updated",
@@ -267,6 +274,8 @@ exports.cancellationAppointment = async (req, res) => {
       return res.status(404).json({ message: "Reservation not found" });
     }
 
+    getIO().emit("scheduleUpdated");
+     getIO().emit("scheduleDetailUpdated");
     const updatedReservation = await Reservation.findByPk(id);
     res.status(200).json({ message: "Reservation updated", data: updatedReservation });
   } catch (error) {
@@ -290,7 +299,8 @@ exports.updateAppointmentStatus = async (req, res) => {
     if (updated[0] === 0) {
       return res.status(404).json({ message: "Reservation not found" });
     }
-
+   getIO().emit("scheduleUpdated");
+    getIO().emit("scheduleDetailUpdated");
     const updatedReservation = await Reservation.findByPk(id);
     return res.status(200).json({ 
       message: "Reservation updated", 
@@ -337,7 +347,8 @@ exports.deleteReservation = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: "Reservation not found" });
     }
-
+    getIO().emit("scheduleUpdated");
+     getIO().emit("scheduleDetailUpdated"); 
     return res
       .status(200)
       .json({ message: "Reservation deleted successfully" });

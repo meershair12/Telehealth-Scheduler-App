@@ -133,7 +133,7 @@ const getDashboardStats = async (req, res) => {
 
      // 7. Total Cancellations and Today's Cancellations
     const totalMisseds = await Reservation.count({
-      where: { status: 'cancelled' }
+      where: { status: 'missed' }
     });
     const todayMisseds = await Reservation.count({
       where: {

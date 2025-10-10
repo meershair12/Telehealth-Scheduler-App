@@ -32,15 +32,20 @@ const User = sequelize.define('User', {
       len: [3, 50],
     },
   },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true,
-      notEmpty: true,
-    },
+email: {
+  type: DataTypes.STRING,
+  allowNull: false,
+  unique: true,
+  validate: {
+    isEmail: true,
+    notEmpty: true,
+    // is: [/^[A-Za-z0-9._%+-]+@personichealth\.com$/i, 'Only @personichealth.com emails are allowed'],
+// is: {
+//       args: /^[A-Za-z0-9._%+-]+@personichealth\.com$/i,
+//       msg: 'Only @personichealth.com emails are allowed.',
+//     },
   },
+},
   password: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -77,12 +82,36 @@ const User = sequelize.define('User', {
     allowNull: false,
     defaultValue: 'Active',
   },
+  accountVerificationStatus: {
+  type: DataTypes.ENUM('verified', 'pending_verification', 'not_verified'),
+  allowNull: false,
+  defaultValue: 'pending_verification',
+},
   profile: {
     type: DataTypes.STRING, // URL of profile picture
     allowNull: true,
     defaultValue: null,
-
   },
+   resetToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetTokenExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  isActionRequired: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  twoFactorSecret: {
+    type: DataTypes.STRING,
+  },
+  is2FAEnabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  deletedAt: { type: DataTypes.DATE, allowNull: true, defaultValue: null, },
 }, {
   tableName: 'users',
   timestamps: true,

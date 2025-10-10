@@ -12,7 +12,11 @@ exports.getAllUsers = async (req, res) => {
     const {privilege:u_role} = req.user
      
     if(AccessControl.authorizeByPrivileges(["superadmin"],req.user)){ 
-      const users = await User.findAll();
+      const users = await User.findAll({
+        attributes:{
+          exclude:"password"
+        }
+      });
       res.status(200).json(users);
     }
     else if ([USER_ROLE.PCC,USER_ROLE.CDS].includes(u_role)){
@@ -20,6 +24,9 @@ exports.getAllUsers = async (req, res) => {
       const users = await User.findAll({
         where:{
             privilege:req.user.privilege
+        },
+        attributes:{
+          exclude:"password"
         }
       });
       res.status(200).json(users);

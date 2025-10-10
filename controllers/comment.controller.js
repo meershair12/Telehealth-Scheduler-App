@@ -1,6 +1,7 @@
 // controllers/reservationCommentController.js
 const ReservationComment = require("../models/comments.model.js");
 const User = require("../models/user.model.js");
+const { getIO } = require("../socket.js");
 const{ getFullForm } = require("./privilliges.controller.js");
 
 // ✅ Create a new comment
@@ -17,6 +18,8 @@ const{ getFullForm } = require("./privilliges.controller.js");
       parentCommentId: parentCommentId || null,
     });
 
+
+    getIO().emit("commentUpdated");
     return res.status(201).json({
       status: true,
       message: "Comment created successfully",
@@ -88,7 +91,7 @@ const{ getFullForm } = require("./privilliges.controller.js");
     }
 
     await existing.update({ comment });
-
+   getIO().emit("commentUpdated");
     return res.status(200).json({
       status: true,
       message: "Comment updated successfully",
@@ -111,7 +114,7 @@ const{ getFullForm } = require("./privilliges.controller.js");
     }
 
     await existing.destroy();
-
+   getIO().emit("commentUpdated");
     return res.status(200).json({
       status: true,
       message: "Comment deleted successfully",

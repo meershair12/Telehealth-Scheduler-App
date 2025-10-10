@@ -9,6 +9,7 @@ const { USER_ROLE } = require('./privilliges.controller');
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
+const { getIO } = require('../socket');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -49,6 +50,8 @@ exports.createAvailability = async (req, res) => {
       }
 
       const schedule = await Availability.create({ providerId, date, startTime, endTime, timezone, createdBy: req.user.id });
+      
+      getIO().emit("scheduleUpdated");
       return res.status(201).json(schedule);
     }
 
@@ -422,7 +425,7 @@ exports.getAvailability = async (req, res) => {
             // ✅ Reservation duration sum
             const reservationDuration =
               slot.reservations?.reduce((sum, r) => {
-                if (r.status === "cancelled") {
+                if (r.status !== "cancelled") {
                   return sum + (r.duration || 0);
                 }
                 return sum;
@@ -566,7 +569,7 @@ exports.getAvailabilityByUser = async (req, res) => {
           model: Availability,
           required: true,
           attributes: ['id', 'startTime', 'endTime', 'status', 'timezone'],
-          where: availabilityWhere,
+          // where: availabi  lityWhere,
           include: [
             { model: State, attributes: ["id", 'stateName'] },
             {
@@ -629,13 +632,24 @@ exports.getAvailabilityByUser = async (req, res) => {
           // 👇 Database wali exact date & time
           startTime: slot.startTime,
           endTime: slot.endTime,
+           time: `${start.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "UTC"
+              })} - ${end.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "UTC"
+              })}`,
           availableTime: {
             start: slot.startTime,
             end: slot.endTime,
             timezone: slot.timezone
           },
-          // date: slot?.startTime?.split("T")[0], // sirf date ke liye
-          date: "", // sirf date ke liye
+          date: dayjs(slot?.startTime).format("YYYY-MM-DD"), // sirf date ke liye
+          // date: "", // sirf date ke liye
           duration: totalDuration,
           availableDuration, // ✅ new field
           status: slot.status,
@@ -951,7 +965,9 @@ exports.updateStatus = async (req, res, next) => {
       ]
     });
 
+    getIO().emit("scheduleUpdated");
     return res.json(updatedSlot);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
@@ -983,6 +999,7 @@ exports.deleteAvailability = async (req, res) => {
       });
       if (!slot) return res.status(404).json({ message: 'Slot not found' });
       await slot.destroy();
+      getIO().emit("scheduleUpdated");
       return res.status(200).json({ message: 'Slot deleted successfully' });
     }
     return res.status(401).json(unAuthorizedAccessResponse)
@@ -1038,7 +1055,7 @@ exports.updateAvailability = async (req, res) => {
 
 
       await availability.save();
-
+getIO().emit("scheduleUpdated");
       return res.json({
         message: "Availability updated successfully",
         data: availability,

@@ -20,7 +20,7 @@ const privilliges = async (req, res) => {
 
 const medicalFullForms = {
   CDS: "Clinical Documentation Specialist ",
-  PCC: "Patient Care Coordination",
+  PCC: "Patient Care Coordinator",
   DSS: "Data Support Specialist",
   PCM: "Patient Care Manager",
   superadmin: "Super Administrator"

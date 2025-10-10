@@ -41,8 +41,10 @@ const getAllProviders = async (req, res) => {
 
   try {
     // Protect route - only allow users with specific privileges
-    // AccessControl.allUsers(req.user, res, USER_ROLES);
-    const providers = await TelehealthProvider.findAll({ raw: true });
+    AccessControl.allUsers(req.user, res, USER_ROLES);
+    const whereConditions = {}
+    if(![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) whereConditions.status="active"
+    const providers = await TelehealthProvider.findAll({ raw: true, where:whereConditions });
 
     // Fetch states for each provider
     const providersWithStates = await Promise.all(
@@ -99,6 +101,7 @@ const search = async (req, res) => {
           { firstName: { [Op.like]: `%${query}%` } },
           { lastName: { [Op.like]: `%${query}%` } },
         ],
+        status:"active"
       },
     });
 

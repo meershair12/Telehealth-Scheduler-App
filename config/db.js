@@ -1,22 +1,13 @@
 const { Sequelize } = require("sequelize");
 
+const DB_CREDENTIAL = process.env
 // MySQL connection
-const sequelize = new Sequelize("telehealth", "root", "", {
-  host: "localhost",
+const sequelize = new Sequelize(DB_CREDENTIAL.DATABASE, DB_CREDENTIAL.DB_USER, DB_CREDENTIAL.DB_PASSWD, {
+  host: DB_CREDENTIAL.HOST,
   dialect: "mysql",
   logging: false, // SQL queries ko console mein print na kare
 });
 
-// (async () => {
-//   try {
-//     await sequelize.authenticate();
-//     console.log("✅ Database connection has been established successfully.");
-//   } catch (error) {
-//     console.error("❌ Unable to connect to the database:", error);
-//   } finally {
-//     await sequelize.close(); // connection close kar dena
-//   }
-// })();
+
 
 module.exports = sequelize;
-  
