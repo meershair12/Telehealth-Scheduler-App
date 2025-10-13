@@ -11,11 +11,11 @@ const { USER_ROLE, getFullForm } = require('../controllers/privilliges.controlle
 const User = require('../models/user.model');
 // RESTful routes for Users
 router.post('/create', userController.createUser);        // Create new user
-router.get('/all',protect, userController.getAllUsers);         // Get all users
+router.get('/all', protect, userController.getAllUsers);         // Get all users
 router.get('/:id', userController.getUserById);     // Get user by ID
-router.put('/:id/update',protect, userController.updateUser);      // Update user
-router.delete('/:id/delete',protect, userController.deleteUser);   // Delete user
-router.patch('/change-password',protect, userController.changeUserPassword);   // Delete user
+router.put('/:id/update', protect, userController.updateUser);      // Update user
+router.delete('/:id/delete', protect, userController.deleteUser);   // Delete user
+router.patch('/change-password', protect, userController.changeUserPassword);   // Delete user
 
 
 const storage = multer.memoryStorage();
@@ -74,7 +74,7 @@ router.post("/:id/upload/profile", protect, upload.single("image"), async (req, 
     user.profile = imageUrl;
     await user.save();
 
-     res.status(200).json({
+    res.status(200).json({
       message: 'Login successful',
       profile: {
         id: user.id,

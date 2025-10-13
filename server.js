@@ -3,7 +3,6 @@ const express = require("express");
 const app = express();
 const http = require("http")
 require('dotenv').config();
-const sequelize = require("./config/db");
 const db = require("./models");
 const path = require("path");
 // Default port
@@ -25,7 +24,6 @@ const server = http.createServer(app);
 // Middleware to parse JSON bodies
 const cors = require('cors');
 const { initSocket } = require("./socket");
-// const { blockedIPs } = require("./middlewares/auth");
 app.use(cors({
   // origin:"http://localhost:3000/",
    allowedHeaders: ["Content-Type", "Authorization"],
@@ -37,14 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 initSocket(server);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Middleware to block IPs
-// app.use((req, res, next) => {
-//   const ip = req.ip;
-//     if (blockedIPs[ip] && blockedIPs[ip] > Date.now()) {
-//         return res.status(403).json({ message: "Your IP is temporarily blocked" });
-//     }
-//     next();
-// });
+
 app.use("/api/auth/", authRoute);
 app.use("/api/state/", stateRoute);
 app.use("/api/provider/", providerRoute);
@@ -57,12 +48,6 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/data', exportRoute);
 app.use("/scim/v2", scimRoutes);
 app.use("/api/keys", apiKeyRoutes);
-
-
-// Home route
-// app.get("/", (req, res) => {
-//   res.send("Hello, Express.js! 🚀");
-// });
 
 
 

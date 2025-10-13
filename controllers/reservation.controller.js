@@ -49,12 +49,7 @@ exports.createReservation = async (req, res) => {
 
     
 
-    // If duration check is needed
-    // if (duration > 20) {
-    //   return res
-    //     .status(400)
-    //     .json({ error: "Duration can't exceed 20 minutes." });
-    // }
+
 
     const reservation = await Reservation.create({
       stateId,
@@ -129,25 +124,7 @@ exports.getReservationById = async (req, res) => {
   }
 };
 
-// ✅ Update Reservation
-// exports.updateReservation = async (req, res) => {
-//   try {
-//     const { id } = req.params;
 
-    
-//     const updated = await Reservation.update(req.body, { where: { id } });
-
-//     if (updated[0] === 0) {
-//       return res.status(404).json({ message: "Reservation not found" });
-//     }
-
-//     const updatedReservation = await Reservation.findByPk(id);
-//     res.status(200).json({ message: "Reservation updated", data: updatedReservation });
-//   } catch (error) {
-//     console.error(error);
-//   return  res.status(500).json({ message: "Failed to update reservation", error });
-//   }
-// };
 exports.updateReservation = async (req, res) => {
   try {
     const { id } = req.params;
@@ -246,23 +223,7 @@ exports.confirmReservation = async (req, res) => {
 };
 
 
-// exports.confirmReservation = async (req, res) => {
-//   try {
-//     const { id } = req.params;
 
-//     const updated = await Reservation.update({...req.body,confirmedId: req.user.id,status:"confirm", isCancelled:"no"}, { where: { id } });
-
-//     if (updated[0] === 0) {
-//       return res.status(404).json({ message: "Reservation not found" });
-//     }
-
-//     const updatedReservation = await Reservation.findByPk(id);
-//     res.status(200).json({ message: "Reservation updated", data: updatedReservation });
-//   } catch (error) {
-//     console.error(error);
-//   return  res.status(500).json({ message: "Failed to update reservation", error });
-//   }
-// };
 exports.cancellationAppointment = async (req, res) => {
   try {
     const { id } = req.params;

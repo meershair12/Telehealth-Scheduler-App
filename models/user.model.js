@@ -7,7 +7,7 @@ const Availability = require('./scheduler.model');
 const Reservation = require('./reservation.model');
 
 const User = sequelize.define('User', {
-    firstName: {
+  firstName: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
@@ -32,20 +32,19 @@ const User = sequelize.define('User', {
       len: [3, 50],
     },
   },
-email: {
-  type: DataTypes.STRING,
-  allowNull: false,
-  unique: true,
-  validate: {
-    isEmail: true,
-    notEmpty: true,
-    // is: [/^[A-Za-z0-9._%+-]+@personichealth\.com$/i, 'Only @personichealth.com emails are allowed'],
-// is: {
-//       args: /^[A-Za-z0-9._%+-]+@personichealth\.com$/i,
-//       msg: 'Only @personichealth.com emails are allowed.',
-//     },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
+      notEmpty: true,
+      is: {
+        args: /^[A-Za-z0-9._%+-]+@personichealth\.com$/i,
+        msg: 'Only @personichealth.com emails are allowed.',
+      },
+    },
   },
-},
   password: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -83,16 +82,16 @@ email: {
     defaultValue: 'Active',
   },
   accountVerificationStatus: {
-  type: DataTypes.ENUM('verified', 'pending_verification', 'not_verified'),
-  allowNull: false,
-  defaultValue: 'pending_verification',
-},
+    type: DataTypes.ENUM('verified', 'pending_verification', 'not_verified'),
+    allowNull: false,
+    defaultValue: 'pending_verification',
+  },
   profile: {
     type: DataTypes.STRING, // URL of profile picture
     allowNull: true,
     defaultValue: null,
   },
-   resetToken: {
+  resetToken: {
     type: DataTypes.STRING,
     allowNull: true,
   },

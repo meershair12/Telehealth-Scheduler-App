@@ -27,15 +27,7 @@ const addProvider = async (req, res) => {
   }
 };
 
-// ✅ Get all providers
-// const getAllProviders = async (req, res) => {
-//   try {
-//     const providers = await TelehealthProvider.findAll();
-//     res.json(providers);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+
 const getAllProviders = async (req, res) => {
 
 
@@ -81,14 +73,7 @@ const search = async (req, res) => {
 
 
   try {
-    // ✅ Protect route - privilege check
-    // const hasAccess = AccessControl.allUsers(req.user, USER_ROLES);
-    // if (!hasAccess) {
-    //   return res.status(403).json({
-    //     status: false,
-    //     message: "Forbidden: You do not have permission to perform this action",
-    //   });
-    // }
+   
 
     // ✅ Get search query string
     const query = req.query.q || ""; // frontend se ?q=smith aayega

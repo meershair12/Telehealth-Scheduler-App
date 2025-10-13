@@ -4,9 +4,6 @@ const sequelize = require("../config/db");
 
 // other models import karo (agar banaye hue hain)
 const State = require("./states.model");
-const Availability = require("./scheduler.model");
-const TelehealthProvider = require("./provider.model");
-const User = require("./user.model");
 
 const Reservation = sequelize.define("Reservation", {
   id: {
@@ -92,11 +89,6 @@ const Reservation = sequelize.define("Reservation", {
 
 // 🔗 Associations
 Reservation.belongsTo(State, { foreignKey: "stateId", as: "state" });
-// Reservation.belongsTo(TelehealthProvider, { foreignKey: "providerId", as: "provider" });
-// Reservation.belongsTo(Availability, { foreignKey: "availabilityId", as: "availability" });
-// Reservation.belongsTo(User, { foreignKey: "reservedBy", as: "reservedUser" });
-// Reservation.belongsTo(User, { foreignKey: "confirmedId", as: "confirmedUser" });
-
 
 
 

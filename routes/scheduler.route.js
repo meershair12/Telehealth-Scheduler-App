@@ -8,16 +8,16 @@ router.post('/create',protect, availabilityController.createAvailability);
 router.post('/check/conflict',protect, availabilityController.checkAvailabilityConflict);
 router.get('/all',protect, availabilityController.getAvailability);
 router.post('/export', exportDoctorScheduleToExcel);
-router.get('/recents', availabilityController.recentSchedule);
+router.get('/recents',protect, availabilityController.recentSchedule);
 
 
-router.put('/:id/update', availabilityController.updateAvailability);
+router.put('/:id/update',protect, availabilityController.updateAvailability);
 
-router.get("/reservation/:reservationId/detail", availabilityController.getReservationDetailByReserveId);
+router.get("/reservation/:reservationId/detail",protect, availabilityController.getReservationDetailByReserveId);
 
 router.get('/:id/details',protect, availabilityController.getAvailabilityById);
 router.patch('/:id/status',protect, availabilityController.updateStatus);
 router.delete('/:id/delete',protect, availabilityController.deleteAvailability);
 // ✅ Single provider availability (by providerId)
-router.get("/availability/:providerId", availabilityController.getAvailabilityByUser);
+router.get("/availability/:providerId",protect, availabilityController.getAvailabilityByUser);
 module.exports = router;
