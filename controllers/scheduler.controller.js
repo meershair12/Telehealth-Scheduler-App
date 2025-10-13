@@ -25,11 +25,11 @@ exports.createAvailability = async (req, res) => {
 
   try {
 
-    const startTime = toTimestamp(dayjs(startFrom).format("YYYY-MM-DD HH:mm:ss"))  
+    const startTime = toTimestamp(dayjs(startFrom).format("YYYY-MM-DD HH:mm:ss"))
     const endTime = toTimestamp(dayjs(endFrom).format("YYYY-MM-DD HH:mm:ss"))
 
 
-    
+
     if ([USER_ROLE.DSS, USER_ROLE.SUPER_ADMIN, USER_ROLE.PCM].includes(req.user.privilege)) {
       // AccessControl.allUsers(req.user, res, ['CDS', 'PCC', "DSS", "PCM", 'superadmin']);
       // Check overlapping slots for same provider/state
@@ -50,7 +50,7 @@ exports.createAvailability = async (req, res) => {
       }
 
       const schedule = await Availability.create({ providerId, date, startTime, endTime, timezone, createdBy: req.user.id });
-      
+
       getIO().emit("scheduleUpdated");
       return res.status(201).json(schedule);
     }
@@ -70,10 +70,10 @@ exports.checkAvailabilityConflict = async (req, res) => {
     const { providerId, date, startTime: startFrom, endTime: endWith } = req.body;
 
 
-   
-    const startTime = toTimestamp(dayjs(startFrom).format("YYYY-MM-DD HH:mm:ss"))  
+
+    const startTime = toTimestamp(dayjs(startFrom).format("YYYY-MM-DD HH:mm:ss"))
     const endTime = toTimestamp(dayjs(endWith).format("YYYY-MM-DD HH:mm:ss"))
-    
+
     // Conflict check (time overlapping logic)
     const conflict = await Availability.findOne({
       where: {
@@ -420,17 +420,17 @@ exports.getAvailabilityByUser = async (req, res) => {
           // 👇 Database wali exact date & time
           startTime: slot.startTime,
           endTime: slot.endTime,
-           time: `${start.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-                timeZone: "UTC"
-              })} - ${end.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-                timeZone: "UTC"
-              })}`,
+          time: `${start.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "UTC"
+          })} - ${end.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "UTC"
+          })}`,
           availableTime: {
             start: slot.startTime,
             end: slot.endTime,
@@ -787,7 +787,7 @@ exports.updateAvailability = async (req, res) => {
 
 
       await availability.save();
-getIO().emit("scheduleUpdated");
+      getIO().emit("scheduleUpdated");
       return res.json({
         message: "Availability updated successfully",
         data: availability,
