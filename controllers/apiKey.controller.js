@@ -1,9 +1,13 @@
 const ApiKey = require("../models/apikey.model");
-
+const { USER_ROLE } = require("./privilliges.controller");
+const { unAuthorizedAccessResponse } = require("../Utils/services");
 
 // Generate new API key
 exports.createApiKey = async (req, res) => {
   try {
+
+
+    if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     const { description, createdBy } = req.body;
     const keyValue = ApiKey.generateKey();
 
@@ -25,8 +29,10 @@ exports.createApiKey = async (req, res) => {
 // Regenerate new API key
 exports.recreateApiKey = async (req, res) => {
   try {
+
+    if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     const keyValue = ApiKey.generateKey();
-  
+
     const { id } = req.params;
     const key = await ApiKey.findByPk(id);
     if (!key) return res.status(404).json({ error: "API key not found" });
@@ -50,8 +56,9 @@ exports.recreateApiKey = async (req, res) => {
 // Get all keys
 exports.getAllKeys = async (req, res) => {
   try {
+    if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     const keys = await ApiKey.findAll({
-      attributes: ["id", "description", "isActive", "createdAt", "lastUsedAt", ["keyVaLue","key"]],
+      attributes: ["id", "description", "isActive", "createdAt", "lastUsedAt", ["keyVaLue", "key"]],
     });
     res.json(keys);
   } catch (err) {
@@ -63,6 +70,7 @@ exports.getAllKeys = async (req, res) => {
 // Deactivate a key
 exports.deactivateKey = async (req, res) => {
   try {
+    if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     const { id } = req.params;
     const key = await ApiKey.findByPk(id);
     if (!key) return res.status(404).json({ error: "API key not found" });
@@ -79,6 +87,7 @@ exports.deactivateKey = async (req, res) => {
 // Deactivate a key
 exports.activateKey = async (req, res) => {
   try {
+    if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     const { id } = req.params;
     const key = await ApiKey.findByPk(id);
     if (!key) return res.status(404).json({ error: "API key not found" });
