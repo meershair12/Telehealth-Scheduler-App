@@ -28,6 +28,7 @@ const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "5e555416fe2bbb900f857d1e2edd89eb");
 
+  
     // DB se user fetch karo
     const user = await User.findOne({
       where: { status: 'active',id: decoded.id },

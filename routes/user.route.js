@@ -94,4 +94,59 @@ router.post("/:id/upload/profile", protect, upload.single("image"), async (req, 
   }
 });
 
+
+router.delete("/:id/remove/profile", protect, async (req, res) => {
+  try {
+    let uid;
+
+    // Determine which user to update
+    if ([USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) {
+      uid = req.params.id;
+    } else {
+      uid = req.user.id;
+    }
+
+    // Get user
+    const user = await User.findByPk(uid);
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    // Check if profile exists
+    if (!user.profile) {
+      return res.status(400).json({ success: false, error: "No profile image to remove" });
+    }
+
+    // Construct path to the stored image
+    const imagePath = path.join(__dirname, "..", user.profile.replace(BASE_URL, ""));
+
+    // Delete the image file if it exists
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
+    // Remove the profile URL from the database
+    user.profile = null;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile image removed successfully",
+      profile: {
+        id: user.id,
+        profile: null,
+        username: user.username,
+        fullName: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        role: user.privilege,
+        roleFullForm: getFullForm(user.privilege),
+      },
+    });
+  } catch (err) {
+    console.error("Error removing profile:", err);
+    res.status(500).json({ success: false, error: "Failed to remove profile image" });
+  }
+});
+
+
 module.exports = router;
