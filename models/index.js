@@ -24,7 +24,7 @@ const syncDB = async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ Database connected.");
-    await sequelize.sync({force:true, alter:false}); // Sync all models
+    await sequelize.sync({force:false, alter:false}); // Sync all models
     console.log("✅ All models synced.");
   } catch (err) {
     console.error("❌ Database sync failed:", err.message);
