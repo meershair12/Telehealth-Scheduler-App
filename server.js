@@ -62,8 +62,10 @@ app.get("/{*dist}", (req, res) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
 
+
+const host = '0.0.0.0';
 // Start server
-server.listen(PORT, async() => {
+server.listen(PORT, host, async() => {
     await db.sync(); // Ensure all models are synced with the database
   console.log(`✅ Server is running at http://localhost:${PORT}`);
 });

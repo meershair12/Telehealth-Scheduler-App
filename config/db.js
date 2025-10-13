@@ -6,6 +6,11 @@ const sequelize = new Sequelize(DB_CREDENTIAL.DATABASE, DB_CREDENTIAL.DB_USER, D
   host: DB_CREDENTIAL.HOST,
   dialect: "mysql",
   logging: false, // SQL queries ko console mein print na kare
+   dialectOptions:{
+    ssl:{
+      require:true
+    }
+  },
 });
 
 
