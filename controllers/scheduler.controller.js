@@ -213,10 +213,7 @@ exports.getAvailability = async (req, res) => {
             // ✅ Reservation duration sum
             const reservationDuration =
               slot.reservations?.reduce((sum, r) => {
-                if (r.status !== "cancelled") {
                   return sum + (r.duration || 0);
-                }
-                return sum;
               }, 0) || 0;
 
             const availableDuration = totalDuration - reservationDuration;
@@ -407,10 +404,9 @@ exports.getAvailabilityByUser = async (req, res) => {
         // ✅ Reservation duration sum
         const reservationDuration =
           slot.reservations?.reduce((sum, r) => {
-            if (r.isCancelled === "no") {
+            
               return sum + (r.duration || 0);
-            }
-            return sum;
+           
           }, 0) || 0;
 
         const availableDuration = totalDuration - reservationDuration;
@@ -566,10 +562,9 @@ exports.getReservationDetailByReserveId = async (req, res) => {
 
           // ✅ Reservation duration sum
           const reservationDuration = slot.reservations?.reduce((sum, r) => {
-            if (r.isCancelled === "no") {
+            
               return sum + (r.duration || 0);
-            }
-            return sum;
+           
           }, 0) || 0;
 
           const availableDuration = totalDuration - reservationDuration;

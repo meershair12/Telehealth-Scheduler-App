@@ -101,3 +101,21 @@ exports.activateKey = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// Delete a key
+exports.deleteKey = async (req, res) => {
+  try {
+    console.log(req.params)
+    if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
+    const { id } = req.params;
+    const key = await ApiKey.findByPk(id);
+    if (!key) return res.status(404).json({ error: "API key not found" });
+
+    
+    await key.destroy();
+
+    res.json({ message: "API key deleted  successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

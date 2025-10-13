@@ -18,5 +18,7 @@ router.patch("/:id/deactivate",protect, apiKeyController.deactivateKey);
 
 router.patch("/:id/activate",protect, apiKeyController.activateKey);
 
+router.delete("/:id/delete",protect, apiKeyController.deleteKey);
+
 module.exports = router;
 
