@@ -30,7 +30,7 @@ exports.createAvailability = async (req, res) => {
 
 
 
-    if ([USER_ROLE.DSS, USER_ROLE.SUPER_ADMIN, USER_ROLE.PCM].includes(req.user.privilege)) {
+    if ([USER_ROLE.DSS, USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) {
       // AccessControl.allUsers(req.user, res, ['CDS', 'PCC', "DSS", "PCM", 'superadmin']);
       // Check overlapping slots for same provider/state
       const overlap = await Availability.findOne({
@@ -139,8 +139,17 @@ exports.getAvailability = async (req, res) => {
     let availabilityWhere = {};
 
     if (startingTime && endTime) {
+      let start = new Date(startingTime);
+      let end = new Date(endTime);
+
+      // Always extend the end date to the end of the day
+      end.setHours(23, 59, 59, 999);
+
+      // Optional: ensure start date begins at 00:00:00 for full-day coverage
+      start.setHours(0, 0, 0, 0);
+
       availabilityWhere.startTime = {
-        [Op.between]: [new Date(startingTime), new Date(endTime)]
+        [Op.between]: [start, end]
       };
     } else {
       const today = new Date();
@@ -213,7 +222,7 @@ exports.getAvailability = async (req, res) => {
             // ✅ Reservation duration sum
             const reservationDuration =
               slot.reservations?.reduce((sum, r) => {
-                  return sum + (r.duration || 0);
+                return sum + (r.duration || 0);
               }, 0) || 0;
 
             const availableDuration = totalDuration - reservationDuration;
@@ -404,9 +413,9 @@ exports.getAvailabilityByUser = async (req, res) => {
         // ✅ Reservation duration sum
         const reservationDuration =
           slot.reservations?.reduce((sum, r) => {
-            
-              return sum + (r.duration || 0);
-           
+
+            return sum + (r.duration || 0);
+
           }, 0) || 0;
 
         const availableDuration = totalDuration - reservationDuration;
@@ -562,9 +571,9 @@ exports.getReservationDetailByReserveId = async (req, res) => {
 
           // ✅ Reservation duration sum
           const reservationDuration = slot.reservations?.reduce((sum, r) => {
-            
-              return sum + (r.duration || 0);
-           
+
+            return sum + (r.duration || 0);
+
           }, 0) || 0;
 
           const availableDuration = totalDuration - reservationDuration;

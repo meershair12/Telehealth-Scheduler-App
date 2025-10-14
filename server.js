@@ -24,6 +24,12 @@ const server = http.createServer(app);
 // Middleware to parse JSON bodies
 const cors = require('cors');
 const { initSocket } = require("./socket");
+
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  next();
+});
+
 app.use(cors({
   // origin:"http://localhost:3000/",
    allowedHeaders: ["Content-Type", "Authorization"],
@@ -33,9 +39,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware (Request logger)
 initSocket(server);
+
+
+
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-
 app.use("/api/auth/", authRoute);
 app.use("/api/state/", stateRoute);
 app.use("/api/provider/", providerRoute);
