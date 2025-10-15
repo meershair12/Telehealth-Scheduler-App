@@ -177,12 +177,12 @@ exports.getAvailability = async (req, res) => {
             {
               model: User,
               as: "confirmedUser",
-              attributes: ['id', "firstName", "lastName", 'email']
+              attributes: ['id', "firstName", "lastName", 'email',"status"]
             },
             {
               model: User,
               as: "reservedUser",
-              attributes: ['id', "firstName", "lastName", 'email']
+              attributes: ['id', "firstName", "lastName", 'email',"status"]
             },
             {
               model: Reservation,
@@ -190,8 +190,8 @@ exports.getAvailability = async (req, res) => {
               attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes", "timezone"],
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status"] }
               ]
             }
           ]
@@ -238,7 +238,7 @@ exports.getAvailability = async (req, res) => {
 
             const sortedReservations =
               slot.reservations
-                ?.filter(r => r.isCancelled === "no") // ✅ First filter out cancelled ones
+                // ?.filter(r => r.isCancelled === "no") // ✅ First filter out cancelled ones
                 ?.sort((a, b) =>
                   dayjs(convertTimeZone(a.start, a.timezone, slot.timezone)).diff(
                     dayjs(convertTimeZone(b.start, b.timezone, slot.timezone))
