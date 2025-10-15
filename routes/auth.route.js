@@ -14,7 +14,7 @@ const PUBLIC_KEY_PATH = path.join(__dirname, '../keys/rsa_public.pem');
 
 
 // Public routes
-router.post('/register',  authController.register);
+router.post('/register',protect,  authController.register);
 router.post('/login',credentialDecryption, authController.login);
 // router.post("/forgot-password", authController.forgotPassword);
 // router.post("/reset-password/:token", authController.resetPassword);

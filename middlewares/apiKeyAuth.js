@@ -1,36 +1,33 @@
-const ApiKey = require("../models/apikey.model");
-
-
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
-    // Expecting the API key in the Authorization header as: Bearer <key>
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Missing or invalid Authorization header" });
+      return res.status(401).json({
+        schemas: ["urn:ietf:params:scim:api:messages:2.0:Error"],
+        detail: "Missing or invalid Authorization header",
+        status: "401"
+      });
     }
 
-    const apiKeyValue = authHeader.split(" ")[1];
+    const token = authHeader.split(" ")[1];
 
-    // Check key in DB
-    const apiKey = await ApiKey.findOne({
-      where: { keyValue: apiKeyValue, isActive: true },
-    });
-
-    if (!apiKey) {
-      return res.status(403).json({ error: "Invalid or inactive API key" });
+    // Compare with SCIM token stored in environment variable
+    if (token !== process.env.SCIM_TOKEN) {
+      return res.status(403).json({
+        schemas: ["urn:ietf:params:scim:api:messages:2.0:Error"],
+        detail: "Invalid or inactive SCIM token",
+        status: "403"
+      });
     }
 
-    // Optionally record usage
-    apiKey.lastUsedAt = new Date();
-    await apiKey.save();
-
-    // Attach key info for downstream controllers
-    req.apiKey = apiKey;
     next();
   } catch (err) {
-    console.error("API key validation error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("SCIM token validation error:", err);
+    res.status(500).json({
+      schemas: ["urn:ietf:params:scim:api:messages:2.0:Error"],
+      detail: "Internal server error",
+      status: "500"
+    });
   }
 };
-

@@ -6,7 +6,7 @@ require('dotenv').config();
 const db = require("./models");
 const path = require("path");
 // Default port
-const PORT = 3000;
+const PORT = 8080;
 const stateRoute = require('./routes/state.route');
 const providerRoute = require('./routes/provider.route');
 const userRoute = require('./routes/user.route');
@@ -25,10 +25,7 @@ const server = http.createServer(app);
 const cors = require('cors');
 const { initSocket } = require("./socket");
 
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
-  next();
-});
+
 
 app.use(cors({
   // origin:"http://localhost:3000/",

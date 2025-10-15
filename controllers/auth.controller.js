@@ -17,7 +17,7 @@ exports.register = async (req, res) => {
     const { username, email, privilege, firstName, lastName } = req.body;
 
     const password = generatePassword()
-    // if(![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
+     if(![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     // Check if username or email already exists
     const existingUser = await AuthUser.findOne({
       where: { username }
