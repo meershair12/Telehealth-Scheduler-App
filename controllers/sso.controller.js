@@ -76,12 +76,12 @@ const ssoCallback = async (req, res) => {
 
     if(user.accountVerificationStatus== "pending_verification"){
       user.accountVerificationStatus = "verified"
-       await user.update({
-      lastLoginAt: new Date(),
-      lastLoginIP: req.ip || req.connection.remoteAddress || null,
-    });
-      user.save()
     }
+    await user.update({
+   lastLoginAt: new Date(),
+   lastLoginIP: req.ip || req.connection.remoteAddress || null,
+ });
+   user.save()
     // Create your local JWT
     const token = jwt.sign(
       { id: user.id, username: user.username, privilege: user.privilege },
