@@ -40,8 +40,9 @@ const User = sequelize.define('User', {
       isEmail: true,
       notEmpty: true,
       is: {
-        args: /^[A-Za-z0-9._%+-]+@personichealth\.com$/i,
-        msg: 'Only @personichealth.com emails are allowed.',
+        args: /^[A-Za-z0-9._%+-]+@(personichealth\.com|WoundMdhealth\.com)$/i,
+msg: 'Only @personichealth.com or @WoundMdhealth.com emails are allowed.',
+
       },
     },
   },

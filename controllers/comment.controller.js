@@ -55,6 +55,7 @@ const{ getFullForm } = require("./privilliges.controller.js");
             "email",
             "profile",
             "status",
+            "designation",
             "id"
           ],
         },
@@ -143,6 +144,7 @@ comments.forEach((comment) => {
       name: comment.author.firstName + " " + comment.author.lastName,
       profile: comment.author.profile,
       role: getFullForm(comment.author.privilege),
+      designation:comment.author.designation,
       id:comment.author.id,
       status: comment.author.status,
       message:

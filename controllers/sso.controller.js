@@ -106,7 +106,7 @@ const ssoCallback = async (req, res) => {
         fullName: user.firstName + " " + user.lastName,
         email: user.email,
         role: user.privilege,
-        roleFullForm: getFullForm(user.privilege),
+        roleFullForm: user.designation ? user.designation : getFullForm(user.privilege),
         lastLoginAt: user.lastLoginAt,
         lastLoginIP: user.lastLoginIP,
       }),

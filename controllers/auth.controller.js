@@ -14,8 +14,9 @@ const { generatePassword } = require("../Utils/generate-password");
 // Register a new user
 exports.register = async (req, res) => {
   try {
-    const { username, email, privilege, firstName, lastName } = req.body;
+    const { username, email, privilege, firstName, lastName,designation } = req.body;
 
+    
     const password = generatePassword()
      if(![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     // Check if username or email already exists
@@ -36,11 +37,11 @@ exports.register = async (req, res) => {
 
     // const resetLink = `${BASE_URL}/invitation/setup/${token}`;
 
-    const user = await AuthUser.create({ username, email, password, privilege, firstName, lastName, resetToken: token, resetTokenExpire });
+    const user = await AuthUser.create({ username, email, password, privilege, firstName, lastName, resetToken: token, resetTokenExpire,designation });
 
     // await sendWelcomeEmail(user.email, user, resetLink)
 
-    res.status(201).json({ message: 'User registered successfully', user: { id: user.id, username: user.username, fullName: user.firstName + " " + user.lastName, email: user.email, privilege: user.privilege } });
+   return res.status(201).json({ message: 'User registered successfully', user: { id: user.id, username: user.username, fullName: user.firstName + " " + user.lastName, email: user.email, privilege: user.privilege } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -109,7 +110,7 @@ exports.login = async (req, res) => {
         fullName: user.firstName + " " + user.lastName,
         email: user.email,
         role: user.privilege,
-        roleFullForm: getFullForm(user.privilege),
+        roleFullForm: user.designation ? user.designation : getFullForm(user.privilege),
         lastLoginAt: user.lastLoginAt,
         lastLoginIP: user.lastLoginIP,
       },
@@ -189,7 +190,7 @@ exports.verifyOtp = async (req, res) => {
       fullName: user.firstName + " " + user.lastName,
       email: user.email,
       role: user.privilege,
-      roleFullForm: getFullForm(user.privilege),
+        roleFullForm: user.designation ? user.designation : getFullForm(user.privilege),
       lastLoginAt: user.lastLoginAt,
       lastLoginIP: user.lastLoginIP,
     },
@@ -212,7 +213,7 @@ exports.getSettings = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await AuthUser.findByPk(req.user.id, { attributes: ['id', 'username', 'email', 'privilege',"firstName","lastName","lastLoginAt","lastLoginIP","profile"] });
+    const user = await AuthUser.findByPk(req.user.id, { attributes: ['id', 'username', 'email', 'privilege',"firstName","lastName","lastLoginAt","lastLoginIP","profile","designation"] });
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json({
       message: 'Login successful',
@@ -223,7 +224,8 @@ exports.getProfile = async (req, res) => {
         fullName: user.firstName + " " + user.lastName,
         email: user.email,
         role: user.privilege,
-        roleFullForm: getFullForm(user.privilege),
+        roleFullForm: user.designation ? user.designation : getFullForm(user.privilege),
+        designation:user.designation,
         lastLoginAt: user.lastLoginAt,
         lastLoginIP: user.lastLoginIP,
       },

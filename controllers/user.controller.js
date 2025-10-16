@@ -65,7 +65,7 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { email, firstName, lastName, privilege, status } = req.body;
+    const { email, firstName, lastName, privilege, status,designation } = req.body;
     const { id: loggedInUserId, privilege: u_role } = req.user;
 
     const user = await User.findByPk(req.params.id);
@@ -74,8 +74,12 @@ exports.updateUser = async (req, res) => {
     }
 
     // Case 1: SUPER_ADMIN can update everything
-    if (u_role === USER_ROLE.SUPER_ADMIN) {
-      await user.update({ email, firstName, lastName, privilege, status });
+    if (u_role === USER_ROLE.SUPER_ADMIN && req.user.id != req.params.id) {
+      await user.update({ email, firstName, lastName, privilege, status,designation });
+      return res.status(200).json({ message: "User updated successfully", user });
+    }
+    if (u_role === USER_ROLE.SUPER_ADMIN && req.user.id == req.params.id) {
+      await user.update({ email, firstName, lastName,designation });
       return res.status(200).json({ message: "User updated successfully", user });
     }
 
@@ -94,7 +98,7 @@ exports.updateUser = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ message: error.message });
   }
 };
 

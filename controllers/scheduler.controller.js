@@ -190,8 +190,8 @@ exports.getAvailability = async (req, res) => {
               attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes", "timezone"],
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status","designation"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status","designation"] }
               ]
             }
           ]
@@ -369,12 +369,12 @@ exports.getAvailabilityByUser = async (req, res) => {
             {
               model: User,
               as: "confirmedUser",
-              attributes: ['id', "firstName", "lastName", 'email']
+              attributes: ['id', "firstName", "lastName", 'email',"status","designation"]
             },
             {
               model: User,
               as: "reservedUser",
-              attributes: ['id', "firstName", "lastName", 'email']
+              attributes: ['id', "firstName", "lastName", 'email',"status","designation"]
             },
             {
               model: Reservation,
@@ -382,8 +382,8 @@ exports.getAvailabilityByUser = async (req, res) => {
               attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes"],
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile","status","designation"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile","status","designation"] }
               ]
             }
           ]
@@ -511,8 +511,8 @@ exports.getReservationDetailByReserveId = async (req, res) => {
               where: { id: reservationId },
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile","status","designation"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile","status","designation"] }
               ]
             }
           ]
