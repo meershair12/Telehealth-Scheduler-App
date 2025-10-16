@@ -94,7 +94,7 @@ const ssoCallback = async (req, res) => {
       httpOnly: false,
       secure: true,
       sameSite: "strict",
-      maxAge: 2 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.cookie(
@@ -114,7 +114,7 @@ const ssoCallback = async (req, res) => {
         httpOnly: false,
         secure: true,
         sameSite: "strict",
-        maxAge: 2 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
       }
     );
 
