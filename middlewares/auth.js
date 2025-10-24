@@ -10,6 +10,7 @@ const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes
 
 const User = require("../models/user.model"); // apna User model import karo
 const { privateDecrypt } = require('crypto');
+const Setting = require("../models/settings.model");
 
 const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -28,7 +29,6 @@ const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "5e555416fe2bbb900f857d1e2edd89eb");
 
-  
     // DB se user fetch karo
     const user = await User.findOne({
       where: { status: 'active',id: decoded.id },
@@ -52,8 +52,13 @@ const protect = async (req, res, next) => {
       });
     }
 
+        const settings = await Setting.findOne({ where: { userId:user?.id } });
+    
+
     // request ke sath user attach karo
     req.user = user;
+    req.setting = settings ? settings : {timezone:'EST'}
+
     next();
 
   } catch (error) {

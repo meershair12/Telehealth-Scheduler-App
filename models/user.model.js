@@ -1,6 +1,6 @@
 // models/User.js
 
-const { DataTypes } = require('sequelize');
+const { DataTypes, ENUM } = require('sequelize');
 const sequelize = require('../config/db'); // your sequelize instance
 const bcrypt = require('bcrypt');
 const Availability = require('./scheduler.model');
@@ -110,6 +110,10 @@ msg: 'Only @personichealth.com or @WoundMdhealth.com emails are allowed.',
   is2FAEnabled: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  isSetupComplete: {
+    type: ENUM("initial","middle","almost","completed","refused"),
+    defaultValue: "initial",
   },
   deletedAt: { type: DataTypes.DATE, allowNull: true, defaultValue: null, },
 }, {

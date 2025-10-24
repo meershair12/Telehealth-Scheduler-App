@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const availabilityController = require('../controllers/scheduler.controller');
 const { protect } = require('../middlewares/auth');
-const { exportDoctorScheduleToExcel } = require('../controllers/export.controller');
+// const { exportDoctorScheduleToExcel } = require('../controllers/export.controller');
 
 router.post('/create',protect, availabilityController.createAvailability);
 router.post('/check/conflict',protect, availabilityController.checkAvailabilityConflict);
 router.get('/all',protect, availabilityController.getAvailability);
-router.post('/export', exportDoctorScheduleToExcel);
+// router.post('/export', exportDoctorScheduleToExcel);
 router.get('/recents',protect, availabilityController.recentSchedule);
 
 

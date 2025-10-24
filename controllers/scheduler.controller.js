@@ -4,7 +4,7 @@ const State = require('../models/states.model');
 const User = require('../models/user.model');
 const Reservation = require('../models/reservation.model');
 const { Op, Sequelize } = require('sequelize');
-const { AccessControl, unAuthorizedAccessResponse } = require('../Utils/services');
+const { AccessControl, unAuthorizedAccessResponse, toUTC, toLocalTz } = require('../Utils/services');
 const { USER_ROLE } = require('./privilliges.controller');
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
@@ -25,8 +25,9 @@ exports.createAvailability = async (req, res) => {
 
   try {
 
-    const startTime = toTimestamp(dayjs(startFrom).format("YYYY-MM-DD HH:mm:ss"))
-    const endTime = toTimestamp(dayjs(endFrom).format("YYYY-MM-DD HH:mm:ss"))
+
+    const startTime = toUTC(startFrom, timezone)
+    const endTime = toUTC(endFrom, timezone)
 
 
 
@@ -134,6 +135,7 @@ function convertTimeZone(dateTime, from, to) {
 exports.getAvailability = async (req, res) => {
   try {
     AccessControl.allUsers(req.user, res, ['CDS', 'PCC', "DSS", "PCM", 'superadmin']);
+    const userTimezone = req.setting.timezone
 
     const { startingTime, endTime } = req.query;
     let availabilityWhere = {};
@@ -177,12 +179,12 @@ exports.getAvailability = async (req, res) => {
             {
               model: User,
               as: "confirmedUser",
-              attributes: ['id', "firstName", "lastName", 'email',"status"]
+              attributes: ['id', "firstName", "lastName", 'email', "status"]
             },
             {
               model: User,
               as: "reservedUser",
-              attributes: ['id', "firstName", "lastName", 'email',"status"]
+              attributes: ['id', "firstName", "lastName", 'email', "status"]
             },
             {
               model: Reservation,
@@ -190,8 +192,8 @@ exports.getAvailability = async (req, res) => {
               attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes", "timezone"],
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status","designation"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status","designation"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status", "designation"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status", "designation"] }
               ]
             }
           ]
@@ -240,20 +242,20 @@ exports.getAvailability = async (req, res) => {
               slot.reservations
                 // ?.filter(r => r.isCancelled === "no") // ✅ First filter out cancelled ones
                 ?.sort((a, b) =>
-                  dayjs(convertTimeZone(a.start, a.timezone, slot.timezone)).diff(
-                    dayjs(convertTimeZone(b.start, b.timezone, slot.timezone))
+                  dayjs(a.start).diff(
+                    dayjs(b.start)
                   )
                 )
                 ?.map((r, idx, arr) => {
-                  const startR = dayjs(convertTimeZone(r.start, r.timezone, slot.timezone));
-                  const endR = dayjs(convertTimeZone(r.end, r.timezone, slot.timezone));
+                  const startR = dayjs(r.start);
+                  const endR = dayjs(r.end);
 
                   let overlap = null;
 
                   if (idx > 0) {
                     const prev = arr[idx - 1];
                     const prevEnd = dayjs(
-                      convertTimeZone(prev.end, prev.timezone, slot.timezone) // ✅ Use prev.timezone
+                      prev.end // ✅ Use prev.timezone
                     );
 
                     // ✅ Check if current reservation starts before previous one ends
@@ -273,8 +275,8 @@ exports.getAvailability = async (req, res) => {
 
                   return {
                     id: r.id,
-                    start: r.start,
-                    end: r.end,
+                    start: toLocalTz(r.start, userTimezone ? userTimezone : slot?.timezone),
+                    end: toLocalTz(r.end, userTimezone ? userTimezone : slot?.timezone),
                     duration: r.duration,
                     status: r.status,
                     isCancelled: r.isCancelled,
@@ -294,21 +296,11 @@ exports.getAvailability = async (req, res) => {
               id: slot.id,
               date: start.toISOString().split("T")[0],
               availableTime: {
-                start: slot.startTime,
-                end: slot.endTime,
+                start: toLocalTz(slot.startTime, userTimezone ? userTimezone : timezone),
+                end: toLocalTz(slot.endTime, userTimezone ? userTimezone : timezone),
                 timezone: slot.timezone
               },
-              time: `${start.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-                timeZone: "UTC"
-              })} - ${end.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-                timeZone: "UTC"
-              })}`,
+              time: `${dayjs(toLocalTz(start, userTimezone ? userTimezone : slot?.timezone)).format("hh:mm A")} - ${dayjs(toLocalTz(end, userTimezone ? userTimezone : slot?.timezone)).format("hh:mm A")}`,
               duration: totalDuration,
               availableDuration,
               status: slot.status,
@@ -369,12 +361,12 @@ exports.getAvailabilityByUser = async (req, res) => {
             {
               model: User,
               as: "confirmedUser",
-              attributes: ['id', "firstName", "lastName", 'email',"status","designation"]
+              attributes: ['id', "firstName", "lastName", 'email', "status", "designation"]
             },
             {
               model: User,
               as: "reservedUser",
-              attributes: ['id', "firstName", "lastName", 'email',"status","designation"]
+              attributes: ['id', "firstName", "lastName", 'email', "status", "designation"]
             },
             {
               model: Reservation,
@@ -382,8 +374,8 @@ exports.getAvailabilityByUser = async (req, res) => {
               attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes"],
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile","status","designation"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile","status","designation"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status", "designation"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status", "designation"] }
               ]
             }
           ]
@@ -391,6 +383,7 @@ exports.getAvailabilityByUser = async (req, res) => {
       ]
     });
 
+    const userTimezone = req.setting.timezone
     if (!provider) {
       return res.status(404).json({ message: "Provider not found" });
     }
@@ -423,24 +416,15 @@ exports.getAvailabilityByUser = async (req, res) => {
         return {
           id: slot.id,
           // 👇 Database wali exact date & time
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          time: `${start.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-            timeZone: "UTC"
-          })} - ${end.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-            timeZone: "UTC"
-          })}`,
-          availableTime: {
-            start: slot.startTime,
-            end: slot.endTime,
-            timezone: slot.timezone
-          },
+          startTime: toLocalTz(slot.startTime,userTimezone?userTimezone:slot?.timezone),
+          endTime: toLocalTz(slot.endTime,userTimezone?userTimezone:slot?.timezone),
+         availableTime: {
+                start: toLocalTz(slot.startTime, userTimezone ? userTimezone : timezone),
+                end: toLocalTz(slot.endTime, userTimezone ? userTimezone : timezone),
+                timezone: slot.timezone
+              },
+              time: `${dayjs(toLocalTz(start, userTimezone ? userTimezone : slot?.timezone)).format("hh:mm A")} - ${dayjs(toLocalTz(end, userTimezone ? userTimezone : slot?.timezone)).format("hh:mm A")}`,
+            
           date: dayjs(slot?.startTime).format("YYYY-MM-DD"), // sirf date ke liye
           // date: "", // sirf date ke liye
           duration: totalDuration,
@@ -455,8 +439,9 @@ exports.getAvailabilityByUser = async (req, res) => {
               ?.sort((a, b) => new Date(a.start) - new Date(b.start))
               .map((r) => ({
                 id: r.id,
-                start: r.start, // 👈 DB wali value
-                end: r.end,     // 👈 DB wali value
+                start: toLocalTz(r.start,userTimezone?userTimezone:slot?.timezone), // 👈 DB wali value
+                end: toLocalTz(r.end,userTimezone?userTimezone:slot?.timezone), // 👈 DB wali value
+                
                 duration: r.duration,
                 status: r.status,
                 notes: r.notes,
@@ -484,7 +469,7 @@ exports.getReservationDetailByReserveId = async (req, res) => {
 
     const { reservationId } = req.params;
 
-
+    const userTimezone = req.setting.timezone
     const provider = await Provider.findOne({
       attributes: ['id', 'suffix', 'firstName', 'stateLicenses', 'lastName', 'specialty'],
       include: [
@@ -507,12 +492,12 @@ exports.getReservationDetailByReserveId = async (req, res) => {
             {
               model: Reservation,
               as: "reservations",
-              attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes", "availabilityId", "timezone"],
+              attributes: ['id', 'start', 'end', 'duration', 'status', 'isCancelled', "reasonOfCancellation", "notes", "availabilityId", "timezone","updatedAt"],
               where: { id: reservationId },
               include: [
                 { model: State, as: "state" },
-                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile","status","designation"] },
-                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile","status","designation"] }
+                { model: User, as: "reservedUser", attributes: ['id', "firstName", "lastName", 'email', "privilege", "profile", "status", "designation"] },
+                { model: User, as: "confirmedUser", attributes: ['id', "firstName", "lastName", 'email', 'privilege', "profile", "status", "designation"] }
               ]
             }
           ]
@@ -532,7 +517,7 @@ exports.getReservationDetailByReserveId = async (req, res) => {
 
 
 
-    const reservationAllbyAvwholeailibilityId = await Reservation.findAll({ where: { availabilityId: provider?.Availabilities[0]?.reservations[0]?.availabilityId } })
+    // const reservationAllbyAvwholeailibilityId = await Reservation.findAll({ where: { availabilityId: provider?.Availabilities[0]?.reservations[0]?.availabilityId } })
     // 🔥 first reservation pick (since where:id already ensures single reservation)
     const mainReservation = provider?.Availabilities[0]?.reservations[0] || null;
 
@@ -542,8 +527,8 @@ exports.getReservationDetailByReserveId = async (req, res) => {
     const response = {
       ...(mainReservation ? {
         id: mainReservation.id,
-        start: mainReservation.start,
-        end: mainReservation.end,
+        start: toLocalTz(mainReservation.start, userTimezone ? userTimezone : mainReservation?.timezone),
+        end: toLocalTz(mainReservation.end, userTimezone ? userTimezone : mainReservation?.timezone),
         duration: mainReservation.duration,
         status: mainReservation.status,
         isCancelled: mainReservation.isCancelled,
@@ -552,7 +537,8 @@ exports.getReservationDetailByReserveId = async (req, res) => {
         confirmedUser: mainReservation.confirmedUser,
         state: mainReservation.state,
         notes: mainReservation.notes,
-        timezone: mainReservation.timezone
+        timezone: mainReservation.timezone,
+        updatedAt:mainReservation.updatedAt
       } : {}),
       doctor: {
         id: provider.id,
@@ -582,20 +568,12 @@ exports.getReservationDetailByReserveId = async (req, res) => {
             id: slot.id,
             date: start.toISOString().split("T")[0],
             availableTime: {
-              startTime: slot.startTime,
-              endTime: slot.endTime
+              start: toLocalTz(slot.startTime, userTimezone ? userTimezone : timezone),
+              end: toLocalTz(slot.endTime, userTimezone ? userTimezone : timezone),
+              timezone: slot.timezone
             },
-            time: `${start.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-              timeZone: "UTC"
-            })} - ${end.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-              timeZone: "UTC"
-            })}`,
+            time: `${dayjs(toLocalTz(start, userTimezone ? userTimezone : slot?.timezone)).format("hh:mm A")} - ${dayjs(toLocalTz(end, userTimezone ? userTimezone : slot?.timezone)).format("hh:mm A")}`,
+
             duration: totalDuration,
             availableDuration,
             status: slot.status,
@@ -607,8 +585,8 @@ exports.getReservationDetailByReserveId = async (req, res) => {
               ?.sort((a, b) => new Date(a.start) - new Date(b.start))
               .map(r => ({
                 id: r.id,
-                start: r.start,
-                end: r.end,
+                start: toLocalTz(r.start, userTimezone ? userTimezone : slot?.timezone),
+                end: toLocalTz(r.start, userTimezone ? userTimezone : slot?.timezone),
                 duration: r.duration,
                 status: r.status,
                 notes: r.notes,
@@ -770,8 +748,8 @@ exports.updateAvailability = async (req, res) => {
       } = req.body;
 
 
-      const start = toTimestamp(`${date} ${startTime}`),
-        end = toTimestamp(`${date} ${endTime}`)
+      const start = toUTC(`${date} ${startTime}`, timezone),
+        end = toUTC(`${date} ${endTime}`, timezone)
       // Record find karo
       const availability = await Availability.findByPk(id);
       if (!availability) {
@@ -908,14 +886,14 @@ exports.recentSchedule = async (req, res) => {
         }
       ]
     });
-
+    const userTimezone = req.setting.timezone
 
     // Format the result
     const response = reservations.map(r => {
       const doctor = r.availability?.TelehealthProvider;
       // const start = new Date(r.start);
-      const start = convertTimeZone(r.start, r.timezone, r.availability.timezone);
-      const end = convertTimeZone(r.end, r.timezone, r.availability.timezone);
+      const start = toLocalTz(r.start,userTimezone?userTimezone:  r.availability.timezone);
+      const end = toLocalTz(r.end, userTimezone?userTimezone:r.availability.timezone);
 
 
 

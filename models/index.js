@@ -6,6 +6,7 @@ const Provider = require("./provider.model");
 const User = require("./user.model");
 const Scheduler = require("./scheduler.model");
 const Availability = require("./scheduler.model");
+const Setting = require("./settings.model");
 
 // Yahan aap aur models add kar sakte ho future me
 const db = {};
@@ -14,6 +15,7 @@ db.State = State;
 db.Provider = Provider;
 db.User = User;
 db.Scheduler = Scheduler;
+db.setting = Setting
 
 
 // Associations
@@ -24,7 +26,7 @@ const syncDB = async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ Database connected.");
-    await sequelize.sync({force:false, alter:false}); // Sync all models
+    await sequelize.sync({ alter:true}); // Sync all models
     console.log("✅ All models synced.");
   } catch (err) {
     console.error("❌ Database sync failed:", err.message);

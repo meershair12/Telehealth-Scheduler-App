@@ -9,6 +9,7 @@ const User = require("../models/user.model");
 const { Op } = require("sequelize");
 const { USER_ROLE } = require("./privilliges.controller");
 const { getIO } = require("../socket");
+const { toUTC } = require("../Utils/services");
 
 exports.createReservation = async (req, res) => {
   try {
@@ -16,13 +17,18 @@ exports.createReservation = async (req, res) => {
       stateId,
       providerId,
       availabilityId,
-      start,
-      end,
+      start:startTime,
+      end:endTime,
       duration,
       notes,
-      timezone
+      // timezone
     } = req.body;
+    const timezone = req.setting.timezone
 
+  
+    const start = toUTC(startTime,timezone),
+          end = toUTC(endTime,timezone)
+          
     // Overlap check: any existing reservation for same provider that overlaps this time
     const existingReservation = await Reservation.findOne({
       where: {
@@ -144,11 +150,15 @@ exports.updateReservation = async (req, res) => {
         title:"Appointment has been confirmed",
         message: "You are not allowed to update this appointment at this time. Please inform admin or CDS team to update.",
         type:"updated_not_allowed"
-      });
+      }); 
     }
-
+    
+     const timezone = req.setting.timezone,
+     start =req.body.start?toUTC(req.body.start,timezone):reservation.start,
+     end = req.body.end?toUTC(req.body.end,timezone):reservation.end
+    
     // Agar CDS, Super Admin ya allowed PCC case hai → update kar do
-    const updated = await Reservation.update(req.body, { where: { id } });
+    const updated = await Reservation.update({...req.body,start,end}, { where: { id } });
 
     if (updated[0] === 0) {
       return res.status(404).json({ message: "Reservation not found" });
@@ -190,14 +200,17 @@ exports.confirmReservation = async (req, res) => {
         message: "You are not allowed to edit this reservation",
       });
     }
-
-
+ const timezone = req.setting.timezone
+    const start = toUTC(req.body.start,timezone),
+          end  = toUTC(req.body.end,timezone)
   
     // Agar CDS ya Super Admin hai, ya phir PCC but condition match nahi hui to allow update
     const updated = await Reservation.update(
       { 
         ...req.body,
         confirmedId: req.user.id,
+        start,
+        end,
         status: "confirmed",
         isCancelled: "no" 
       },

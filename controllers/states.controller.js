@@ -26,7 +26,7 @@ const addState = async (req, res) => {
     res.status(401).json(unAuthorizedAccessResponse)
   } catch (error) {
     console.log(error )
-    res.status(400).json({ error: error.errors[0].message });
+    res.status(400).json({ message: error.errors[0].message });
   }
 };
 

@@ -104,7 +104,7 @@ exports.activateKey = async (req, res) => {
 // Delete a key
 exports.deleteKey = async (req, res) => {
   try {
-    console.log(req.params)
+ 
     if (![USER_ROLE.SUPER_ADMIN].includes(req.user.privilege)) return res.status(401).json(unAuthorizedAccessResponse)
     const { id } = req.params;
     const key = await ApiKey.findByPk(id);

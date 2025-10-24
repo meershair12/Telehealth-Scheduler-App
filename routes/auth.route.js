@@ -7,7 +7,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const { getFullForm } = require('../controllers/privilliges.controller');
-const { startSSO, mockProvider, ssoCallback } = require('../controllers/sso.controller');
+const { startSSO, mockProvider, ssoCallback } = require('../controllers/test.sso.controller');
 const { setupAuthenticatorMFA, verifyAuthenticatorOTP } = require('../controllers/mfa.controller');
 
 const PUBLIC_KEY_PATH = path.join(__dirname, '../keys/rsa_public.pem');
@@ -30,7 +30,8 @@ router.post('/login',credentialDecryption, authController.login);
 // /api/auth/sso
 router.get("/sso", startSSO);
 
-
+// /api/auth/mock-provider
+router.get("/mock-provider", mockProvider);
 // /api/auth/sso/callback
 router.get("/sso/callback", ssoCallback);
 

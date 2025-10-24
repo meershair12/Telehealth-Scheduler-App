@@ -6,7 +6,7 @@ require('dotenv').config();
 const db = require("./models");
 const path = require("path");
 // Default port
-const PORT = 8080;
+const PORT = 3000;
 const stateRoute = require('./routes/state.route');
 const providerRoute = require('./routes/provider.route');
 const userRoute = require('./routes/user.route');
@@ -19,6 +19,7 @@ const commentRoutes = require('./routes/comments.route');
 const exportRoute = require('./routes/export.route');
 const scimRoutes = require("./routes/scim.route");
 const apiKeyRoutes = require("./routes/apiKey.routes");
+const settingsRoutes = require("./routes/setting.routes");
 
 const server = http.createServer(app);
 // Middleware to parse JSON bodies
@@ -50,9 +51,10 @@ app.use("/api/schedule/", scheduleRoute);
 app.use("/api/reservations", reservationRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api/data', exportRoute);
+app.use('/api/reports', exportRoute);
 app.use("/scim/v2", scimRoutes);
 app.use("/api/keys", apiKeyRoutes);
+app.use("/api/settings", settingsRoutes);
 
 
 

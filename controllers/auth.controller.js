@@ -213,7 +213,7 @@ exports.getSettings = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await AuthUser.findByPk(req.user.id, { attributes: ['id', 'username', 'email', 'privilege',"firstName","lastName","lastLoginAt","lastLoginIP","profile","designation"] });
+    const user = await AuthUser.findByPk(req.user.id, { attributes: ['id', 'username', 'email', 'privilege',"firstName","lastName","lastLoginAt","lastLoginIP","profile","designation","isSetupComplete"] });
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json({
       message: 'Login successful',
@@ -228,6 +228,7 @@ exports.getProfile = async (req, res) => {
         designation:user.designation,
         lastLoginAt: user.lastLoginAt,
         lastLoginIP: user.lastLoginIP,
+        isSetupComplete:user.isSetupComplete
       },
     });
   } catch (error) {

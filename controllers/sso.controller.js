@@ -97,26 +97,27 @@ const ssoCallback = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.cookie(
-      "user",
-      JSON.stringify({
-        id: user.id,
-        profile: user.profile,
-        username: user.username,
-        fullName: user.firstName + " " + user.lastName,
-        email: user.email,
-        role: user.privilege,
-        roleFullForm: user.designation ? user.designation : getFullForm(user.privilege),
-        lastLoginAt: user.lastLoginAt,
-        lastLoginIP: user.lastLoginIP,
-      }),
-      {
-        httpOnly: false,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000,
-      }
-    );
+   res.cookie(
+    "user",
+    JSON.stringify({
+      id: user.id,
+      profile: user.profile,
+      username: user.username,
+      fullName: user.firstName + " " + user.lastName,
+      email: user.email,
+      role: user.privilege,
+      roleFullForm: user.designation ? user.designation : getFullForm(user.privilege),
+      isSetupComplete: user.isSetupComplete,
+      lastLoginAt: user.lastLoginAt,
+      lastLoginIP: user.lastLoginIP,
+    }),
+    {
+      httpOnly: false,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    }
+  );
 
     return res.redirect(`${returnUrl}?sso=success`);
   } catch (error) {
