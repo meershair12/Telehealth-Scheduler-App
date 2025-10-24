@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {  generateReport } = require('../controllers/export.controller');
+// const {  generateReport } = require('../controllers/export.controller');
 const { generateSummaryReport } = require('../controllers/reportSummary');
 
 // Export schedule to Excel
