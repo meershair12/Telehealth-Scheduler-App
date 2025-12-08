@@ -13,6 +13,6 @@ const { protect } = require('../middlewares/auth');
 router.post("/download",protect, generateProviderSummaryReport);
 router.post("/download/state",protect, generateStateSummaryReport);
 router.post("/generate",protect, getUtilizationChartData);
-router.get("/most-recent", getRecentReports);
+router.get("/most-recent",protect, getRecentReports);
 
 module.exports = router;
