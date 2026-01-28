@@ -32,20 +32,19 @@ const User = sequelize.define('User', {
       len: [3, 50],
     },
   },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true,
-      notEmpty: true,
-      is: {
-        args: /^[A-Za-z0-9._%+-]+@(personichealth\.com|WoundMdhealth\.com)$/i,
-msg: 'Only @personichealth.com or @WoundMdhealth.com emails are allowed.',
-
-      },
+ email: {
+  type: DataTypes.STRING,
+  allowNull: false,
+  unique: true,
+  validate: {
+    isEmail: true,
+    notEmpty: true,
+    is: {
+      args: /^[A-Za-z0-9._%+-]+@(personichealth\.com|WoundMdhealth\.com|marathonsupport\.com)$/i,
+      msg: 'Only @personichealth.com, @WoundMdhealth.com, or @marathonsupport.com emails are allowed.',
     },
   },
+},
   password: {
     type: DataTypes.STRING,
     allowNull: false,
