@@ -199,7 +199,11 @@ exports.getAvailability = async (req, res) => {
             }
           ]
         }
-      ]
+      ],
+        order: [
+    // Sort Availabilities by startTime ascending
+    [{ model: Availability }, 'startTime', 'ASC']
+  ]
     });
 
 
